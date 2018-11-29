@@ -1,5 +1,6 @@
 import Coordinates from "./geometry";
-import { Movable, Constants, Boundaries, SpatiallyDescribed, MovableWithStartEnergy, getStartEnergy } from "./physics";
+import { Movable, Boundaries, SpatiallyDescribed, MovableWithStartEnergy, getStartEnergy, Constants } from "./physics";
+import { random } from "./utils";
 
 export interface BallParameters {
     pos: Coordinates,
@@ -9,6 +10,38 @@ export interface BallParameters {
     boundaries: Boundaries
 };
 
+export class BallHandler {
+    public balls: Ball[] = [];
+
+    private remainder: number = 0;
+
+    constructor(public interval: number, private boundariesGenerator: (() => Boundaries)) {
+        this.remainder = interval * 0.5;
+    }
+
+    private throwBall() {
+        let boundaries = this.boundariesGenerator();
+        this.balls.push(new Ball({
+            pos: new Coordinates(
+                random(boundaries.min.x, boundaries.max.x),
+                random((boundaries.max.y + boundaries.min.y) * 0.7, boundaries.max.y - 20)
+            ),
+            speed: new Coordinates(random(20, 50) * (random(0, 1) * 2 - 1) * 0.01, 0),
+            acc: new Coordinates(0, Constants.Gravity),
+            boundaries: boundaries
+        }));
+    }
+
+    public handleTimePassage(interval: number) {
+        this.remainder += interval;
+        while (this.remainder >= this.interval) {
+            this.throwBall();
+            this.remainder -= this.interval;
+        }
+    }
+
+}
+
 export default class Ball implements MovableWithStartEnergy {
     startEnergy: number;
     pos: Coordinates;
@@ -16,7 +49,7 @@ export default class Ball implements MovableWithStartEnergy {
     acc: Coordinates;
     boundaries: Boundaries;
 
-    public update(updateBy: SpatiallyDescribed): Movable {
+    public update(updateBy: SpatiallyDescribed): Ball {
         let newBall = new Ball({
             ...updateBy,
             startEnergy: this.startEnergy,

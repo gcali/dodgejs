@@ -67,5 +67,5 @@ export const simulateTime = (movable: Movable, dt: number, externalBoundaries: B
 };
 
 export const Constants = {
-    Gravity: -0.001
+    Gravity: -0.0009
 };

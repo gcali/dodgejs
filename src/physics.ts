@@ -9,21 +9,32 @@ export interface SpatiallyDescribed {
     pos: Coordinates,
     speed: Coordinates,
     acc: Coordinates,
-    boundaries?: Boundaries,
+    boundaries: Boundaries,
+    useExternalBoundaries: boolean;
 }
 
 export interface Movable extends SpatiallyDescribed {
-    update: (updateBy: SpatiallyDescribed) => Movable
+    update: (updateBy: SpatiallyDescribed) => Movable,
+    shouldBounce: boolean
 };
 
+export interface CanBreak extends Movable {
+    isBreaking: boolean,
+    breakingSpeed: number
+}
+
 export interface MovableWithStartEnergy extends Movable {
-    startEnergy: number;
+    startEnergy: number
 }
 
 export const getStartEnergy = (height: number, speed: number) => (speed * speed * 0.5) - height * Constants.Gravity;
 
 function hasStartEnergy(object: Movable | MovableWithStartEnergy): object is MovableWithStartEnergy {
     return (<MovableWithStartEnergy>object).startEnergy !== undefined;
+}
+
+function canBreak(object: Movable | CanBreak): object is CanBreak {
+    return (<CanBreak>object).breakingSpeed !== undefined;
 }
 
 function calculateHeightFromStartEnergy(startEnergy: number, currentSpeed: number) {
@@ -35,22 +46,50 @@ function calculateSpeedFromStartEnergy(startEnergy: number, currentHeight: numbe
 }
 
 export const simulateTime = (movable: Movable, dt: number, externalBoundaries: Boundaries) => {
+    let isMovingLeft = movable.speed.x < 0;
+    let isMovingRight = movable.speed.x > 0;
+    let isStill = !isMovingLeft && !isMovingRight;
+    let acc = movable.acc;
+    if (canBreak(movable) && movable.isBreaking) {
+        if (isMovingLeft) {
+            acc = acc.setX(movable.breakingSpeed);
+        }
+        else if (isMovingRight) {
+            acc = acc.setX(-movable.breakingSpeed);
+        }
+        else {
+            acc = acc.setX(0);
+        }
+    }
     let newPos = movable.pos.addDerivate(dt, movable.speed);
-    let newSpeed = movable.speed.addDerivate(dt, movable.acc);
+    let newSpeed = movable.speed.addDerivate(dt, acc);
+    if (canBreak(movable)) {
+        if ((isMovingLeft && newSpeed.x >= 0) || (isMovingRight && newSpeed.x <= 0)) {
+            {
+                movable.isBreaking = false;
+                newSpeed = newSpeed.setX(0);
+            }
+        }
+    }
 
     if (hasStartEnergy(movable)) {
         let calculatedNewY = calculateHeightFromStartEnergy(movable.startEnergy, newSpeed.y);
         newPos = newPos.setY(calculatedNewY);
     }
 
-    if (movable.boundaries) {
+    if (movable.useExternalBoundaries) {
         let boundaries = {
-            min: movable.boundaries.min.clamp(externalBoundaries.min, externalBoundaries.max),
-            max: movable.boundaries.max.clamp(externalBoundaries.min, externalBoundaries.max)
+            min: externalBoundaries.min.add(movable.boundaries.min.times(-1)),
+            max: externalBoundaries.max.add(movable.boundaries.max.times(-1))
         };
         let clampedPos = newPos.clamp(boundaries.min, boundaries.max);
         if (clampedPos.x != newPos.x) {
-            newSpeed = newSpeed.setX(-newSpeed.x);
+            if (movable.shouldBounce) {
+                newSpeed = newSpeed.setX(-newSpeed.x);
+            }
+            else {
+                newSpeed = newSpeed.setX(0);
+            }
         }
         if (clampedPos.y != newPos.y) {
             if (hasStartEnergy(movable)) {
@@ -58,7 +97,12 @@ export const simulateTime = (movable: Movable, dt: number, externalBoundaries: B
                 console.log(`New: ${newSpeed.y}, newEnergy: ${getStartEnergy(clampedPos.y, newSpeed.y)}, oldEnergy: ${movable.startEnergy}`);
             }
             else {
-                newSpeed = newSpeed.setY(-newSpeed.y);
+                if (movable.shouldBounce) {
+                    newSpeed = newSpeed.setY(-newSpeed.y);
+                }
+                else {
+                    newSpeed = newSpeed.setY(0);
+                }
             }
         }
         newPos = clampedPos;

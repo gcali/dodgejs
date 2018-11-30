@@ -7,7 +7,6 @@ export interface BallParameters {
     speed: Coordinates,
     acc: Coordinates,
     startEnergy?: number,
-    boundaries: Boundaries
 };
 
 export class BallHandler {
@@ -28,15 +27,16 @@ export class BallHandler {
             ),
             speed: new Coordinates(random(20, 50) * (random(0, 1) * 2 - 1) * 0.01, 0),
             acc: new Coordinates(0, Constants.Gravity),
-            boundaries: boundaries
         }));
     }
 
     public handleTimePassage(interval: number) {
-        this.remainder += interval;
-        while (this.remainder >= this.interval) {
-            this.throwBall();
-            this.remainder -= this.interval;
+        if (document.hasFocus() && !document.hidden) {
+            this.remainder += interval;
+            while (this.remainder >= this.interval) {
+                this.throwBall();
+                this.remainder -= this.interval;
+            }
         }
     }
 
@@ -47,23 +47,26 @@ export default class Ball implements MovableWithStartEnergy {
     pos: Coordinates;
     speed: Coordinates;
     acc: Coordinates;
-    boundaries: Boundaries;
+    boundaries: Boundaries = {
+        min: new Coordinates(0, 0),
+        max: new Coordinates(0, 0)
+    };
+    useExternalBoundaries = true;
+    shouldBounce = true;
 
     public update(updateBy: SpatiallyDescribed): Ball {
         let newBall = new Ball({
             ...updateBy,
             startEnergy: this.startEnergy,
-            boundaries: updateBy.boundaries ? updateBy.boundaries : this.boundaries
         });
         newBall.startEnergy = this.startEnergy;
         return newBall;
     }
 
-    constructor({ pos, speed, acc, startEnergy, boundaries }: BallParameters) {
+    constructor({ pos, speed, acc, startEnergy }: BallParameters) {
         this.pos = pos;
         this.speed = speed;
         this.acc = acc;
-        this.boundaries = boundaries;
         if (!startEnergy) {
             this.startEnergy = getStartEnergy(this.pos.y, this.speed.y);
         }

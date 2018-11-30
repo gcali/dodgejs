@@ -5,6 +5,7 @@ import { Constants, simulateTime, Movable, getStartEnergy } from "./physics";
 import { Updater } from "./drawing/updater";
 import ConverterCreator from "./drawing/converter";
 import { Shooter } from "./shooter";
+import InputHandler from "./input-handler";
 
 let canvas = document.createElement("canvas");
 
@@ -32,9 +33,18 @@ let ballCreator = new BallHandler(4000, () => boundariesCalculator(canvas));
 let shooterSize = new Coordinates(80, 80);
 
 let shooter = new Shooter(new Coordinates((boundaries.min.x + boundaries.max.x) * 0.5, 0), shooterSize);
-
 let converter = new ConverterCreator(canvas);
+
+let inputHandler = new InputHandler(() => shooter);
+
 let modelUpdates = [
+    (tick: number) => {
+        if (document.hidden || !document.hasFocus()) {
+            inputHandler.documentHidden();
+        }
+        inputHandler.handleInput();
+        return true;
+    },
     (tick: number) => {
         ballCreator.handleTimePassage(tick);
         return true;

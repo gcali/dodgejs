@@ -6,6 +6,7 @@ import { Updater } from "./drawing/updater";
 import ConverterCreator from "./drawing/converter";
 import { Shooter } from "./shooter";
 import InputHandler from "./input-handler";
+import template from "./templates/sidebar.handlebars";
 
 let canvas = document.createElement("canvas");
 
@@ -20,6 +21,17 @@ document.body.appendChild(canvas);
 let logger = document.createElement("div");
 
 document.body.appendChild(logger);
+
+let helloWorld = document.createElement("div");
+helloWorld.innerHTML = template({
+    lifes: [
+        1,
+        2
+    ]
+});
+
+document.body.appendChild(helloWorld);
+
 
 let boundariesCalculator = (canvas: HTMLCanvasElement) => ({
     min: new Coordinates(0, 0),

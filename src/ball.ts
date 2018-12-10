@@ -1,6 +1,8 @@
-import Coordinates, { Rectangle } from "./geometry";
+import Coordinates, { Rectangle, Circle } from "./geometry";
 import { Movable, Boundaries, SpatiallyDescribed, MovableWithStartEnergy, getStartEnergy, Constants } from "./physics";
 import { random } from "./utils";
+import { Drawable, DrawingShape } from "./drawing/drawingShapes";
+import { Shooter } from "./shooter";
 
 export interface BallParameters {
     pos: Coordinates,
@@ -36,6 +38,10 @@ export class BallHandler {
         this.balls.push(ball);
     }
 
+    public checkCollisions(shooter: Shooter): void {
+        shooter.isColliding = this.balls.some(ball => shooter.collidesWith(ball.collisionBall));
+    }
+
     public handleTimePassage(interval: number): void {
         if (document.hasFocus() && !document.hidden) {
             this.remainder += interval;
@@ -48,7 +54,15 @@ export class BallHandler {
 
 }
 
-export default class Ball implements MovableWithStartEnergy {
+export default class Ball implements MovableWithStartEnergy, Drawable {
+    public get shapes(): DrawingShape[] {
+        return [
+            new DrawingShape({
+                shape: new Circle(this.pos, this.radius),
+                color: "white"
+            })
+        ];
+    }
     startEnergy: number;
     pos: Coordinates;
     speed: Coordinates;
@@ -73,29 +87,10 @@ export default class Ball implements MovableWithStartEnergy {
         return newBall;
     }
 
-    public collidesWith(rectangle: Rectangle): boolean {
-        let rectangleCenter = rectangle.center;
-        let centerDistanceX = this.pos.distanceFromX(rectangleCenter);
-        let centerDistanceY = this.pos.distanceFromY(rectangleCenter);
-
-        if (centerDistanceX > rectangle.size.x / 2 + this.radius) {
-            return false;
-        }
-        if (centerDistanceY > rectangle.size.y / 2 + this.radius) {
-            return false;
-        }
-        if (centerDistanceX <= rectangle.size.x / 2) {
-            return false;
-        }
-        if (centerDistanceY <= rectangle.size.y / 2) {
-            return false;
-        }
-
-        var dx = centerDistanceX - rectangle.size.x / 2;
-        var dy = centerDistanceY - rectangle.size.y / 2;
-        return (dx * dx + dy * dy <= (this.radius * this.radius));
-
+    public get collisionBall(): Circle {
+        return new Circle(this.pos, this.radius);
     }
+
 
     constructor({ pos, speed, acc, startEnergy, radius }: BallParameters) {
         this.pos = pos;

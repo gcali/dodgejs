@@ -39,15 +39,22 @@ export default class Coordinates {
         let dy = this.distanceFromY(other);
         return dx * dx + dy * dy;
     }
+
+    public toString(): string {
+        return `(${this.x},${this.y})`;
+    }
 }
 
 export class Rectangle {
     constructor(public origin: Coordinates, public size: Coordinates) {
-
     }
 
     public get center(): Coordinates {
         return this.origin.add(this.size.times(0.5));
+    }
+
+    public toString(): string {
+        return `${this.origin.toString()}[${this.size.x}x${this.size.y}]`;
     }
 }
 

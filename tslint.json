@@ -1,0 +1,16 @@
+{
+    "rules": {
+        "typedef": [
+            true,
+            "call-signature",
+            "parameter",
+            "property-declaration",
+            "member-variable-declaration"
+        ],
+        "no-inferrable-types": [
+            true,
+            "ignore-params",
+            "ignore-properties"
+        ]
+    }
+}

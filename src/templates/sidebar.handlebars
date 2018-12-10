@@ -1,7 +1,7 @@
-<div class="sidebar">
-    <div class="life-container">
-        {{#each lifes}}
-        <span>Ciao!</span>
-        {{/each}}
-    </div>
+<div id="js-sidebar" class="sidebar">
+    <ul class="life-container">
+        {{#[helpers/for] lifes}}
+        <li></li>
+        {{/[helpers/for]}}
+    </ul>
 </div>

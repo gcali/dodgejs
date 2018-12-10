@@ -6,8 +6,8 @@ export default class InputHandler {
         this.isRightDown = false;
     }
 
-    private isLeftDown = false;
-    private isRightDown = false;
+    private isLeftDown: boolean = false;
+    private isRightDown: boolean = false;
     constructor(private shooterExtractor: () => Shooter) {
         let handlerCreator = (whatToSet: boolean) => ((e: KeyboardEvent) => {
             if (e.keyCode === 37) /*left */ {
@@ -21,7 +21,7 @@ export default class InputHandler {
         window.onkeyup = handlerCreator(false);
     }
 
-    public handleInput() {
+    public handleInput(): void {
         let shooter = this.shooterExtractor();
         if ((this.isLeftDown && this.isRightDown) || (!this.isLeftDown && !this.isRightDown)) {
             shooter.stopMoving();

@@ -37,11 +37,11 @@ function canBreak(object: Movable | CanBreak): object is CanBreak {
     return (<CanBreak>object).breakingSpeed !== undefined;
 }
 
-function calculateHeightFromStartEnergy(startEnergy: number, currentSpeed: number) {
+function calculateHeightFromStartEnergy(startEnergy: number, currentSpeed: number): number {
     return ((startEnergy - (currentSpeed * currentSpeed * 0.5)) / Constants.Gravity) * -1;
 }
 
-function calculateSpeedFromStartEnergy(startEnergy: number, currentHeight: number) {
+function calculateSpeedFromStartEnergy(startEnergy: number, currentHeight: number): number {
     return Math.sqrt((startEnergy + currentHeight * Constants.Gravity) * 2);
 }
 

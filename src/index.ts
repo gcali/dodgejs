@@ -6,32 +6,44 @@ import { Updater } from "./drawing/updater";
 import ConverterCreator from "./drawing/converter";
 import { Shooter } from "./shooter";
 import InputHandler from "./input-handler";
-import template from "./templates/sidebar.handlebars";
+// import template from "./templates/sidebar.handlebars";
+import template from "./templates/index.handlebars";
 
-let canvas = document.createElement("canvas");
+// let canvas = document.createElement("canvas");
 
-canvas.classList.add("main-scene");
-canvas.width = 800;
-canvas.height = 600;
+// canvas.classList.add("main-scene");
+// canvas.width = 800;
+// canvas.height = 600;
 
-let context = canvas.getContext('2d');
+// let context = canvas.getContext('2d');
 
-document.body.appendChild(canvas);
+// document.body.appendChild(canvas);
 
-let logger = document.createElement("div");
+// let sidebar = document.createElement("div");
+// sidebar.innerHTML = template({
+//     lifes: 3
+// });
+// document.body.appendChild(sidebar);
 
-document.body.appendChild(logger);
-
-let helloWorld = document.createElement("div");
-helloWorld.innerHTML = template({
-    lifes: [
-        1,
-        2
-    ]
+let indexHTML = template({
+    mainScene: {
+        width: 800,
+        height: 600
+    },
+    sidebar: {
+        lifes: 3
+    }
 });
 
-document.body.appendChild(helloWorld);
+let mainWrapper = document.createElement("div");
+mainWrapper.innerHTML = indexHTML;
+console.log(indexHTML);
+let index = mainWrapper.children[0];
+document.body.appendChild(index);
 
+let canvas = document.getElementById("js-main-scene") as HTMLCanvasElement;
+let context = canvas.getContext('2d');
+let sidebar = document.getElementById("js-sidebar");
 
 let boundariesCalculator = (canvas: HTMLCanvasElement) => ({
     min: new Coordinates(0, 0),

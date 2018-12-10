@@ -37,13 +37,31 @@ let indexHTML = template({
 
 let mainWrapper = document.createElement("div");
 mainWrapper.innerHTML = indexHTML;
-console.log(indexHTML);
 let index = mainWrapper.children[0];
 document.body.appendChild(index);
 
 let canvas = document.getElementById("js-main-scene") as HTMLCanvasElement;
-let context = canvas.getContext('2d');
 let sidebar = document.getElementById("js-sidebar");
+
+let logger = document.createElement("div");
+logger.classList.add("logger");
+document.body.appendChild(logger);
+
+let appendLoggerLine = (function (): ((line: string) => void) {
+    let loggerLines: string[] = [];
+    function updateLogger(): void {
+        logger.innerHTML = loggerLines.join("<br/>");
+    }
+    function appendLoggerLine(line: string): void {
+        let newSize = loggerLines.push(line);
+        if (newSize > 4) {
+            loggerLines.shift();
+        }
+        updateLogger();
+    }
+    return appendLoggerLine;
+})();
+
 
 let boundariesCalculator = (canvas: HTMLCanvasElement) => ({
     min: new Coordinates(0, 0),
@@ -52,7 +70,7 @@ let boundariesCalculator = (canvas: HTMLCanvasElement) => ({
 
 let boundaries = boundariesCalculator(canvas);
 
-let ballCreator = new BallHandler(4000, () => boundariesCalculator(canvas));
+let ballCreator = new BallHandler(4000, () => boundariesCalculator(canvas), 8);
 
 let shooterSize = new Coordinates(80, 80);
 
@@ -86,17 +104,6 @@ let modelUpdates = [
 ];
 let graphicUpdates = [
     (context: CanvasRenderingContext2D) => {
-        ballCreator.balls.forEach(ball => {
-            context.beginPath();
-            let viewCoordinates = converter.coordinateToView(ball.pos);
-            context.arc(viewCoordinates.x, viewCoordinates.y, 8, 0, Math.PI * 2);
-            context.fillStyle = "white";//"#EEC900";            //"black";//"#4f2f2f";//"white";
-            context.fill();
-        });
-
-        return true;
-    },
-    (context: CanvasRenderingContext2D) => {
         let from = new Coordinates(shooter.pos.x - shooter.size.x / 2, shooter.pos.y);
         let to = new Coordinates(shooter.pos.x + shooter.size.x / 2, shooter.pos.y + shooter.size.y);
 
@@ -111,11 +118,30 @@ let graphicUpdates = [
         context.fillStyle = "white";
         context.fill();
         return true;
+    },
+    (context: CanvasRenderingContext2D) => {
+        ballCreator.balls.forEach(ball => {
+            context.beginPath();
+            let viewCoordinates = converter.coordinateToView(ball.pos);
+            context.arc(viewCoordinates.x, viewCoordinates.y, ball.radius, 0, Math.PI * 2);
+            context.fillStyle = "white";//"#EEC900";            //"black";//"#4f2f2f";//"white";
+            if (ball.collidesWith(shooter.collisionRectangle)) {
+                context.fillStyle = "yellow";
+            }
+            else if (ball.isRed) {
+                context.fillStyle = "red";
+                appendLoggerLine(`${ball.pos.x}, ${ball.pos.y}, ${ball.radius}, ${shooter.pos.x}`);
+            }
+            context.fill();
+        });
+
+        return true;
     }
 ]
 
 let updater = new Updater(canvas);
 updater.graphicUpdates = graphicUpdates;
 updater.modelUpdates = modelUpdates;
+updater.inputHandler = inputHandler;
 
 updater.update();

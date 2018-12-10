@@ -1,6 +1,8 @@
+import { Updater } from './drawing/updater';
 import { Shooter } from "./shooter";
 
 export default class InputHandler {
+    public isPaused: boolean = false;
     public documentHidden(): void {
         this.isLeftDown = false;
         this.isRightDown = false;
@@ -15,6 +17,9 @@ export default class InputHandler {
             }
             else if (e.keyCode === 39) /*right*/ {
                 this.isRightDown = whatToSet;
+            }
+            else if (e.keyCode === 80) /*p*/ {
+                this.isPaused = !this.isPaused;
             }
         });
         window.onkeydown = handlerCreator(true);

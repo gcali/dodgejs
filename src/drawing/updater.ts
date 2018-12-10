@@ -1,3 +1,4 @@
+import InputHandler from "../input-handler";
 
 export interface TickCallback {
     (dt: number): boolean;
@@ -16,10 +17,12 @@ export class Updater {
     public modelUpdates: TickCallback[] = [];
     public graphicUpdates: GraphicCallback[] = [];
 
+    public inputHandler?: InputHandler;
+
     constructor(private canvas: HTMLCanvasElement) {
     }
 
-    public update() {
+    public update(): void {
         let startTicks: number = undefined;
         let context = this.canvas.getContext('2d');
         let updater = () => {
@@ -27,7 +30,7 @@ export class Updater {
             if (!startTicks) {
                 startTicks = now;
             }
-            if (document.hasFocus) {
+            if (document.hasFocus && (!this.inputHandler || !this.inputHandler.isPaused)) {
                 clear(context, this.canvas);
                 let dt = now - startTicks;
                 this.modelUpdates = this.modelUpdates.filter(tick => tick(dt));

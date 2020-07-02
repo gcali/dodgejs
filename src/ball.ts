@@ -39,7 +39,11 @@ export class BallHandler {
     }
 
     public checkCollisions(shooter: Shooter): void {
-        shooter.isColliding = this.balls.some(ball => shooter.collidesWith(ball.collisionBall));
+        if (shooter.stillPoweredFor) {
+            this.balls = this.balls.filter(ball => !shooter.collidesWith(ball.collisionBall));
+        } else {
+            shooter.isColliding = this.balls.some(ball => shooter.collidesWith(ball.collisionBall));
+        }
     }
 
     public handleTimePassage(interval: number): void {

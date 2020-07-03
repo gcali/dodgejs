@@ -59,6 +59,10 @@ let ballCreator = new BallHandler(4000, () => boundariesCalculator(canvas), 8);
 let shooterSize = new Coordinates(80, 80);
 
 let shooter = new Shooter(new Coordinates((boundaries.min.x + boundaries.max.x) * 0.5, 0), shooterSize);
+shooter.areaHeight = () => {
+    const boundaries = boundariesCalculator(canvas);
+    return boundaries.max.y - boundaries.min.y;
+};
 let converter = new ConverterCreator(canvas);
 
 let inputHandler = new InputHandler(() => shooter);
@@ -79,6 +83,11 @@ let modelUpdates = [
                 shooter.stillPoweredFor = undefined;
             }
         }
+    },
+    (tick: number) => {
+        let externalBoundaries = boundariesCalculator(canvas);
+        shooter.shots.forEach(shot => simulateTime(shot, tick, externalBoundaries));
+        shooter.shots = shooter.shots.filter(shot => shot.shouldKeep(externalBoundaries));
     }
 ];
 let graphicUpdates = [
@@ -86,7 +95,8 @@ let graphicUpdates = [
     (drawer: Drawer) =>
         ballCreator.balls.forEach(ball => {
             drawer.drawShape(ball);
-        })
+        }),
+    (drawer: Drawer) => shooter.shots.forEach(shot => drawer.drawShape(shot))
 ]
 
 let updater = new Updater(canvas, context => new Drawer({ converter, context }));

@@ -1,8 +1,53 @@
 import { Movable, SpatiallyDescribed, Boundaries, CanBreak } from "./physics";
 import Coordinates, { Rectangle, Circle } from "./geometry";
 import { Drawable, DrawingShape } from "./drawing/drawingShapes";
+
+export class Shot implements Drawable, Movable {
+    public update(updateBy: SpatiallyDescribed): Movable {
+        this.pos = updateBy.pos;
+        return this;
+    }
+
+    constructor(x: number, height: number, private startY: number) {
+        this.pos = new Coordinates(x, startY);
+        this.size.y = height - startY;
+    }
+    shouldBounce: boolean = false;
+    pos: Coordinates;
+    speed: Coordinates = new Coordinates(0, 1);
+    acc: Coordinates = new Coordinates(0,0);
+    public get boundaries(): Boundaries {
+        return {
+            min: new Coordinates(-this.size.x/2, Math.max(this.pos.y - this.size.y, this.startY)),
+            max: new Coordinates(this.size.x/2, this.pos.y)
+        } 
+    }
+    useExternalBoundaries: boolean = false;
+    public size: Coordinates = new Coordinates(10, 0);
+    public shouldKeep(externalBoundaries: Boundaries): boolean {
+        return this.pos.y - this.size.y <= externalBoundaries.max.y;
+    }
+
+    public get mainRectangle(): Rectangle {
+        const rectangle = new Rectangle(
+            new Coordinates(
+                this.pos.x - this.size.x/2, 
+                Math.max(this.pos.y - this.size.y, this.startY)
+            ), new Coordinates(
+                this.size.x, 
+                this.pos.y - this.startY
+            )
+        );
+        return rectangle; 
+    }
+    public get shapes(): DrawingShape[] {
+        return [new DrawingShape({shape: this.mainRectangle, color: "white"})];
+    }
+}
+
 export class Shooter implements Movable, CanBreak, Drawable {
     public isColliding: boolean = false;
+    public shots: Shot[] = [];
     public get shapes(): DrawingShape[] {
         if (this.stillPoweredFor && this.stillPoweredFor > 0) {
             let rectangle = new Rectangle(new Coordinates(this.pos.x - this.size.x / 2, 0), new Coordinates(this.size.x, this.size.y));
@@ -39,6 +84,7 @@ export class Shooter implements Movable, CanBreak, Drawable {
     public stillPoweredFor?: number;
     breakingSpeed: number = 2 * 0.002
     public isBreaking: boolean = false;
+    public areaHeight?: () => number;
     private maxSpeed: number = 2;
     private movementAcc: number = 0.002;
 
@@ -48,6 +94,12 @@ export class Shooter implements Movable, CanBreak, Drawable {
 
     get movingLeft(): boolean {
         return this.speed.x < 0;
+    }
+
+    shoot(): void {
+        if (this.shots.length === 0 && this.areaHeight) {
+            this.shots.push(new Shot(this.pos.x, this.areaHeight(), 0.75 * this.size.x));
+        }
     }
 
     moveRight(): void {
@@ -68,12 +120,18 @@ export class Shooter implements Movable, CanBreak, Drawable {
         this.isBreaking = true;
     }
     public update(updateBy: SpatiallyDescribed): Movable {
-        let shooter = new Shooter(updateBy.pos, this.size);
-        shooter.acc = updateBy.acc;
-        shooter.speed = updateBy.speed.clamp(new Coordinates(-this.maxSpeed, 0), new Coordinates(this.maxSpeed, 0));
-        shooter.isColliding = this.isColliding;
-        shooter.stillPoweredFor = this.stillPoweredFor;
-        return shooter;
+        // let shooter = new Shooter(updateBy.pos, this.size);
+        this.pos = updateBy.pos;
+        this.acc = updateBy.acc;
+        // shooter.acc = updateBy.acc;
+        // shooter.speed = updateBy.speed.clamp(new Coordinates(-this.maxSpeed, 0), new Coordinates(this.maxSpeed, 0));
+        this.speed = updateBy.speed.clamp(new Coordinates(-this.maxSpeed, 0), new Coordinates(this.maxSpeed, 0));
+        // shooter.isColliding = this.isColliding;
+        // shooter.stillPoweredFor = this.stillPoweredFor;
+        // shooter.shots = this.shots;
+        // shooter.areaHeight = this.areaHeight;
+        // return shooter;
+        return this;
     }
 
     useExternalBoundaries: boolean = true;
@@ -91,6 +149,14 @@ export class Shooter implements Movable, CanBreak, Drawable {
             xSize /= 2;
         }
         return new Rectangle(new Coordinates(this.pos.x - xSize, 0), new Coordinates(2 * xSize, this.size.y));
+    }
+
+    public collidingShots(ball: Circle): Shot[] {
+        return this.shots.filter(shot => shot.mainRectangle.collidesWith(ball));
+    }
+
+    public removeShots(toRemove: Shot[]) {
+        this.shots = this.shots.filter(s => !toRemove.includes(s));
     }
 
     public collidesWith(ball: Circle): boolean {

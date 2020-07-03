@@ -94,7 +94,7 @@ export const simulateTime = (movable: Movable, dt: number, externalBoundaries: B
         if (clampedPos.y != newPos.y) {
             if (hasStartEnergy(movable)) {
                 newSpeed = newSpeed.setY(calculateSpeedFromStartEnergy(movable.startEnergy, clampedPos.y));
-                console.log(`New: ${newSpeed.y}, newEnergy: ${getStartEnergy(clampedPos.y, newSpeed.y)}, oldEnergy: ${movable.startEnergy}`);
+                // console.log(`New: ${newSpeed.y}, newEnergy: ${getStartEnergy(clampedPos.y, newSpeed.y)}, oldEnergy: ${movable.startEnergy}`);
             }
             else {
                 if (movable.shouldBounce) {

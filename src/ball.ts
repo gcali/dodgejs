@@ -2,7 +2,7 @@ import Coordinates, { Rectangle, Circle } from "./geometry";
 import { Movable, Boundaries, SpatiallyDescribed, MovableWithStartEnergy, getStartEnergy, Constants } from "./physics";
 import { random } from "./utils";
 import { Drawable, DrawingShape } from "./drawing/drawingShapes";
-import { Shooter } from "./shooter";
+import { Shooter, Shot } from "./shooter";
 
 export interface BallParameters {
     pos: Coordinates,
@@ -39,6 +39,14 @@ export class BallHandler {
     }
 
     public checkCollisions(shooter: Shooter): void {
+        const shotsToRemove: Shot[] = [];
+        const newBalls = this.balls.filter(ball => {
+            const collidingShots = shooter.collidingShots(ball.collisionBall);
+            collidingShots.forEach(shot => shotsToRemove.push(shot));
+            return collidingShots.length === 0;
+        });
+        shooter.removeShots(shotsToRemove);
+        this.balls = newBalls;
         if (shooter.stillPoweredFor) {
             this.balls = this.balls.filter(ball => !shooter.collidesWith(ball.collisionBall));
         } else {

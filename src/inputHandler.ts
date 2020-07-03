@@ -1,4 +1,4 @@
-import { Shooter } from "./shooter";
+import { Shooter, Shot } from "./shooter";
 
 export default class InputHandler {
     public isPaused: boolean = false;
@@ -13,6 +13,7 @@ export default class InputHandler {
     private isLeftDown: boolean = false;
     private isRightDown: boolean = false;
     private isDownDown: boolean = false;
+    private isUpDown: boolean = false;
     constructor(private shooterExtractor: () => Shooter) {
         let translator: { [key: number]: string } = {
             80: "p",
@@ -21,6 +22,9 @@ export default class InputHandler {
         let handlerCreator = (whatToSet: boolean) => ((e: KeyboardEvent) => {
             if (e.keyCode === 37) /*left */ {
                 this.isLeftDown = whatToSet;
+            }
+            else if (e.keyCode === 38) {
+                this.isUpDown = whatToSet;
             }
             else if (e.keyCode === 39) /*right*/ {
                 this.isRightDown = whatToSet;
@@ -54,6 +58,10 @@ export default class InputHandler {
             shooter.stillPoweredFor = 4000;
         }
 
+        if (this.isUpDown) {
+            shooter.shoot();
+        }
+
         if (this.keysDown.has("p")) {
             this.isPaused = !this.isPaused;
         }
@@ -61,6 +69,8 @@ export default class InputHandler {
         if (this.keysDown.has("s")) {
             this.slowDown = !this.slowDown;
         }
+
+
 
         this.keysDown = new Set<string>();
     }

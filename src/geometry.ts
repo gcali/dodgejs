@@ -1,4 +1,5 @@
 import { clamp } from "./utils";
+import { IsCircle } from "./drawing/drawingShapes";
 
 export default class Coordinates {
     constructor(public x: number, public y: number) {
@@ -56,6 +57,50 @@ export class Rectangle {
     public toString(): string {
         return `${this.origin.toString()}[${this.size.x}x${this.size.y}]`;
     }
+
+    private collidesWithRectangle(other: Rectangle): boolean {
+        if (this.origin.x < other.origin.x + other.size.x &&
+        this.origin.x + this.size.x > other.origin.x &&
+        this.origin.y < other.origin.y + other.size.y &&
+        this.origin.y + this.size.y > other.origin.y) {
+            return true;
+        }
+        return false;
+    }
+
+    public collidesWith(other: Circle | Rectangle): boolean {
+        if (IsCircle(other)) {
+            return this.collidesWithCircle(other);
+        } else {
+            return this.collidesWithRectangle(other);
+        }
+    }
+
+    private collidesWithCircle(other: Circle): boolean {
+        const rectangle = this;
+        const ball = other;
+        let rectangleCenter = rectangle.center;
+        let centerDistanceX = ball.center.distanceFromX(rectangleCenter);
+        let centerDistanceY = ball.center.distanceFromY(rectangleCenter);
+
+        if (centerDistanceX > rectangle.size.x / 2 + ball.radius) {
+            return false;
+        }
+        if (centerDistanceY > rectangle.size.y / 2 + ball.radius) {
+            return false;
+        }
+        if (centerDistanceX <= rectangle.size.x / 2) {
+            return true;
+        }
+        if (centerDistanceY <= rectangle.size.y / 2) {
+            return true;
+        }
+
+        var dx = centerDistanceX - rectangle.size.x / 2;
+        var dy = centerDistanceY - rectangle.size.y / 2;
+        return (dx * dx + dy * dy <= (ball.radius * ball.radius));
+    }
+    
 }
 
 export class Circle {

@@ -23,8 +23,6 @@ export default class Drawer {
             }
             else {
                 let viewCoordinates = this.converter.coordinateToView(atomShape.shape.origin);
-                console.log(viewCoordinates);
-                console.log(atomShape.shape.size);
                 this.context.rect(viewCoordinates.x, viewCoordinates.y, atomShape.shape.size.x, -atomShape.shape.size.y);
                 this.context.fillStyle = atomShape.color;
             }

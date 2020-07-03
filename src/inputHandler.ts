@@ -55,7 +55,7 @@ export default class InputHandler {
         }
 
         if (this.isDownDown) {
-            shooter.stillPoweredFor = 4000;
+            shooter.activatePower();
         }
 
         if (this.isUpDown) {

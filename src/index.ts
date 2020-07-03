@@ -77,12 +77,7 @@ let modelUpdates = [
     (tick: number) => {
         let externalBoundaries = boundariesCalculator(canvas);
         shooter = <Shooter>simulateTime(shooter, tick, externalBoundaries);
-        if (shooter.stillPoweredFor) {
-            shooter.stillPoweredFor -= tick;
-            if (shooter.stillPoweredFor < 0) {
-                shooter.stillPoweredFor = undefined;
-            }
-        }
+        shooter.passTime(tick);
     },
     (tick: number) => {
         let externalBoundaries = boundariesCalculator(canvas);

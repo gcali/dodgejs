@@ -81,6 +81,21 @@ export class Shooter implements Movable, CanBreak, Drawable {
         }
     }
 
+    public passTime(tick: number): void {
+        if (this.stillPoweredFor) {
+            this.stillPoweredFor -= tick;
+            if (this.stillPoweredFor < 0) {
+                this.stillPoweredFor = undefined;
+            }
+        }
+        this.waitToShoot = Math.max(0, this.waitToShoot - tick);
+    }
+
+    public activatePower(): void {
+        this.stillPoweredFor = 4000;
+    }
+
+    private waitToShoot: number = 0;
     public stillPoweredFor?: number;
     breakingSpeed: number = 2 * 0.002
     public isBreaking: boolean = false;
@@ -97,8 +112,9 @@ export class Shooter implements Movable, CanBreak, Drawable {
     }
 
     shoot(): void {
-        if (this.shots.length === 0 && this.areaHeight) {
+        if (this.waitToShoot === 0 && this.areaHeight) {
             this.shots.push(new Shot(this.pos.x, this.areaHeight(), 0.75 * this.size.x));
+            this.waitToShoot = 4500;
         }
     }
 

@@ -14,10 +14,11 @@ export default class InputHandler {
     private isRightDown: boolean = false;
     private isDownDown: boolean = false;
     private isUpDown: boolean = false;
-    constructor(private shooterExtractor: () => Shooter) {
+    constructor(private shooterExtractor: () => Shooter, private init: () => void) {
         let translator: { [key: number]: string } = {
             80: "p",
-            83: "s"
+            83: "s",
+            78: "n"
         };
         let handlerCreator = (whatToSet: boolean) => ((e: KeyboardEvent) => {
             if (e.keyCode === 37) /*left */ {
@@ -68,6 +69,10 @@ export default class InputHandler {
 
         if (this.keysDown.has("s")) {
             this.slowDown = !this.slowDown;
+        }
+
+        if (this.keysDown.has("n")) {
+            this.init();
         }
 
 

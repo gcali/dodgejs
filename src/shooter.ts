@@ -46,8 +46,18 @@ export class Shot implements Drawable, Movable {
 }
 
 export class Shooter implements Movable, CanBreak, Drawable {
+    init() {
+        this.isColliding = false;
+        this.shots = [];
+        this.howManyPowers = 3;
+        this.waitToShoot = 0;
+        this.stillPoweredFor = undefined;
+        this.isBreaking = false;
+    }
+
     public isColliding: boolean = false;
     public shots: Shot[] = [];
+    indicatorRemover: () => void;
     public get shapes(): DrawingShape[] {
         if (this.stillPoweredFor && this.stillPoweredFor > 0) {
             let rectangle = new Rectangle(new Coordinates(this.pos.x - this.size.x / 2, 0), new Coordinates(this.size.x, this.size.y));
@@ -91,8 +101,16 @@ export class Shooter implements Movable, CanBreak, Drawable {
         this.waitToShoot = Math.max(0, this.waitToShoot - tick);
     }
 
+    private howManyPowers = 3;
+
     public activatePower(): void {
-        this.stillPoweredFor = 4000;
+        if (!this.stillPoweredFor && this.howManyPowers > 0) {
+            this.howManyPowers--;
+            this.stillPoweredFor = 4000;
+            if (this.indicatorRemover) {
+                this.indicatorRemover();
+            }
+        }
     }
 
     private waitToShoot: number = 0;
@@ -102,6 +120,10 @@ export class Shooter implements Movable, CanBreak, Drawable {
     public areaHeight?: () => number;
     private maxSpeed: number = 2;
     private movementAcc: number = 0.002;
+
+    get indicatorRatio(): number {
+        return ((this.waitToShoot || 0) / this.shootDelay);
+    }
 
     get movingRight(): boolean {
         return this.speed.x > 0;
@@ -114,9 +136,11 @@ export class Shooter implements Movable, CanBreak, Drawable {
     shoot(): void {
         if (this.waitToShoot === 0 && this.areaHeight) {
             this.shots.push(new Shot(this.pos.x, this.areaHeight(), 0.75 * this.size.x));
-            this.waitToShoot = 4500;
+            this.waitToShoot = this.shootDelay;
         }
     }
+
+    private shootDelay = 4500;
 
     moveRight(): void {
         this.isBreaking = false;
@@ -136,17 +160,9 @@ export class Shooter implements Movable, CanBreak, Drawable {
         this.isBreaking = true;
     }
     public update(updateBy: SpatiallyDescribed): Movable {
-        // let shooter = new Shooter(updateBy.pos, this.size);
         this.pos = updateBy.pos;
         this.acc = updateBy.acc;
-        // shooter.acc = updateBy.acc;
-        // shooter.speed = updateBy.speed.clamp(new Coordinates(-this.maxSpeed, 0), new Coordinates(this.maxSpeed, 0));
         this.speed = updateBy.speed.clamp(new Coordinates(-this.maxSpeed, 0), new Coordinates(this.maxSpeed, 0));
-        // shooter.isColliding = this.isColliding;
-        // shooter.stillPoweredFor = this.stillPoweredFor;
-        // shooter.shots = this.shots;
-        // shooter.areaHeight = this.areaHeight;
-        // return shooter;
         return this;
     }
 

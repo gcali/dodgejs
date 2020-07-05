@@ -32,9 +32,40 @@ body {
         }
         display: inline-block;
         // border: 1px solid;
+        position: relative;
         vertical-align: top;
         @include card();
     }
+}
+
+.indicators {
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 10px;
+    color: white;
+    .shoot-delay-indicator {
+        background-color: white;
+        height: 10px;
+        width: 0px;
+        margin-bottom: 10px;
+    }
+    .super-indicator {
+        margin-right: 10px;
+        height: 30px;
+        width: 10px;
+        background-color: white;
+        display: inline-block;
+    }
+}
+
+.timer {
+    right: 1em;
+    position: absolute;
+    color: white;
+    font-size: 20px;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-family: "VT323";
 }
 
 .logger {

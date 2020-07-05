@@ -1,6 +1,11 @@
 <div class="page">
     <div class="pane">
-        {{> main-scene this.mainScene}}
+        <div class="indicators">
+            <div id="js-shoot-delay" class="shoot-delay-indicator"></div>
+            <div class="super-indicators" id="js-super-indicators"></div>
+        </div>
+        <div class="timer" id="js-timer"></div>
+            {{> main-scene this.mainScene}}
     </div>
     <div class="pane">
         {{> sidebar this.sidebar}}

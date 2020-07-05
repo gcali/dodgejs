@@ -22,6 +22,11 @@ export class BallHandler {
         this.remainder = interval * 0.5;
     }
 
+    public init(): void {
+        this.balls = [];
+        this.isFirst = true;
+    }
+
     private throwBall(): void {
         let boundaries = this.boundariesGenerator();
         let ball = new Ball({
@@ -29,7 +34,7 @@ export class BallHandler {
                 random(boundaries.min.x, boundaries.max.x),
                 random((boundaries.max.y + boundaries.min.y) * 0.7, boundaries.max.y - 20)
             ),
-            speed: new Coordinates(random(20, 50) * (random(0, 1) * 2 - 1) * 0.01, 0),
+            speed: new Coordinates(random(20, 70) * (random(0, 1) * 2 - 1) * 0.01, 0),
             acc: new Coordinates(0, Constants.Gravity),
             radius: this.radius
         });

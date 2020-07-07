@@ -24,6 +24,7 @@
     "mocha": "^8.0.1",
     "mocha-webpack": "^1.1.0",
     "node-sass": "^4.14.1",
+    "push-dir": "^0.4.1",
     "sass-loader": "^9.0.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.4.5",

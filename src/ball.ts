@@ -19,12 +19,13 @@ export class BallHandler {
     private isFirst: boolean = true;
 
     constructor(public interval: number, private boundariesGenerator: (() => Boundaries), public radius: number) {
-        this.remainder = interval * 0.5;
+        this.init();
     }
 
     public init(): void {
         this.balls = [];
         this.isFirst = true;
+        this.remainder = this.interval * 0.5;
     }
 
     private throwBall(): void {
@@ -60,12 +61,10 @@ export class BallHandler {
     }
 
     public handleTimePassage(interval: number): void {
-        if (document.hasFocus() && !document.hidden) {
-            this.remainder += interval;
-            while (this.remainder >= this.interval) {
-                this.throwBall();
-                this.remainder -= this.interval;
-            }
+        this.remainder += interval;
+        while (this.remainder >= this.interval) {
+            this.throwBall();
+            this.remainder -= this.interval;
         }
     }
 

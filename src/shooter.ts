@@ -53,9 +53,28 @@ export class Shooter implements Movable, CanBreak, Drawable {
         this.waitToShoot = 0;
         this.stillPoweredFor = undefined;
         this.isBreaking = false;
+        this.acc = new Coordinates(0, 0);
+        this.speed = new Coordinates(0, 0);
     }
 
-    public isColliding: boolean = false;
+    public get isColliding(): boolean {
+        return this._isColliding;
+    }
+
+    public set isColliding(value: boolean) {
+        const wasColliding = this._isColliding;
+        this._isColliding = value;
+        if (this.onColliding !== null){
+            if (!wasColliding && value) {
+                this.onColliding();
+            }
+        }
+    }
+
+    public onColliding: () => void | null = null;
+
+    private _isColliding: boolean = false;
+
     public shots: Shot[] = [];
     indicatorRemover: () => void;
     public get shapes(): DrawingShape[] {

@@ -4,5 +4,10 @@
         <li></li>
         {{/[helpers/for]}}
     </ul> --}}
-    <div>Sidebar</div>
+    <h2 class="title">Scores</h1>
+    <ol class="scores">
+        {{#each scores}}
+        <li>{{this.value}} - {{this.name}}</li>
+        {{/each}}
+    </ol>
 </div>

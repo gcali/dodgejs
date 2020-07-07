@@ -1,8 +1,20 @@
 import { Shooter, Shot } from "./shooter";
 
 export default class InputHandler {
+    restore() {
+        this.ignoreInput = false;
+    }
+    pause() {
+        this.ignoreInput = true;
+        this.isRightDown = false;
+        this.isLeftDown = false;
+        this.isDownDown = false;
+        this.isUpDown = false;
+        this.keysDown.clear();
+    }
     public isPaused: boolean = false;
     public slowDown: boolean = false;
+    private ignoreInput: boolean = false;
     public documentHidden(): void {
         this.isLeftDown = false;
         this.isRightDown = false;
@@ -21,6 +33,9 @@ export default class InputHandler {
             78: "n"
         };
         let handlerCreator = (whatToSet: boolean) => ((e: KeyboardEvent) => {
+            if (this.ignoreInput) {
+                return;
+            }
             if (e.keyCode === 37) /*left */ {
                 this.isLeftDown = whatToSet;
             }
@@ -44,6 +59,9 @@ export default class InputHandler {
     }
 
     public handleInput(): void {
+        if (this.ignoreInput) {
+            return;
+        }
         let shooter = this.shooterExtractor();
         if ((this.isLeftDown && this.isRightDown) || (!this.isLeftDown && !this.isRightDown)) {
             shooter.stopMoving();

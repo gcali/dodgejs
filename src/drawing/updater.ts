@@ -18,33 +18,59 @@ export class Updater {
     public modelUpdates: TickCallback[] = [];
     public graphicUpdates: GraphicCallback[] = [];
 
-    public inputHandler?: InputHandler;
+    public inputHandler?: InputHandler; 
 
     constructor(private canvas: HTMLCanvasElement, private drawerFactory: ((context: CanvasRenderingContext2D) => Drawer)) {
     }
 
+    public restore() {
+        this.pauseUpdates = false;
+        this.lastTicks = undefined;
+    }
+    public pause() {
+        if (this.timeoutHandlers !== null) {
+            window.clearTimeout(this.timeoutHandlers.id);
+            this.timeoutHandlers.callback();
+        }
+        this.pauseUpdates = true;
+    }
+
+    private pauseUpdates: boolean = false;
+
+    private timeoutHandlers: {
+        id: number;
+        callback: () => void;
+    } | null = null;
+
+    private lastTicks?: number = undefined;
+
     public update(): void {
-        let startTicks: number = undefined;
         let context = this.canvas.getContext('2d');
         let updater = () => {
-            let now = new Date().getTime();
-            if (!startTicks) {
-                startTicks = now;
-            }
-            if (this.inputHandler) {
-                this.inputHandler.handleInput();
-            }
-            if (document.hasFocus && (!this.inputHandler || !this.inputHandler.isPaused)) {
-                clear(context, this.canvas);
-                let dt = now - startTicks;
-                if (this.inputHandler && this.inputHandler.slowDown) {
-                    dt *= 0.5;
+            if (!this.pauseUpdates) {
+                let now = new Date().getTime();
+                if (!this.lastTicks) {
+                    this.lastTicks = now;
                 }
-                this.modelUpdates = this.modelUpdates.filter(tick => !tick(dt));
-                this.graphicUpdates = this.graphicUpdates.filter(tick => !tick(this.drawerFactory(context)));
+                if (this.inputHandler) {
+                    this.inputHandler.handleInput();
+                }
+                if ((!this.inputHandler || !this.inputHandler.isPaused)) {
+                    clear(context, this.canvas);
+                    let dt = now - this.lastTicks;
+                    if (this.inputHandler && this.inputHandler.slowDown) {
+                        dt *= 0.5;
+                    }
+                    this.modelUpdates = this.modelUpdates.filter(tick => !tick(dt));
+                    this.graphicUpdates = this.graphicUpdates.filter(tick => !tick(this.drawerFactory(context)));
+                }
+                this.lastTicks = now;
             }
-            startTicks = now;
-            setTimeout(updater, 16);
+            const id = window.setTimeout(updater, 16);
+            this.timeoutHandlers = {
+                id,
+                callback: updater.bind(this)
+            };
         }
         updater();
     }

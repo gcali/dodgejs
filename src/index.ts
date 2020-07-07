@@ -7,7 +7,9 @@ import ConverterCreator from "./drawing/converter";
 import { Shooter } from "./shooter";
 import InputHandler from "./inputHandler";
 import template from "./templates/index.handlebars";
+import sidebarTemplate from "./templates/sidebar.handlebars";
 import Drawer from "./drawing/drawer";
+import { nameStorage, scoreStorage } from "./storage";
 
 let indexHTML = template({
     mainScene: {
@@ -15,9 +17,11 @@ let indexHTML = template({
         height: 600
     },
     sidebar: {
-        lifes: 3
+        scores: scoreStorage.loadScores()
     }
 });
+
+let pause: boolean = true;
 
 
 let mainWrapper = document.createElement("div");
@@ -31,6 +35,8 @@ let timer = document.getElementById("js-timer");
 
 const shootIndicator = document.getElementById("js-shoot-delay"); 
 const superIndicatorContainer = document.getElementById("js-super-indicators");
+const scorePopup = document.getElementById("js-score-popup");
+const startPopup = document.getElementById("js-start-popup");
 
 const superIndicators: HTMLDivElement[] = [];
 
@@ -43,7 +49,7 @@ const indicatorRemover = () => {
 
 
 let canvas = document.getElementById("js-main-scene") as HTMLCanvasElement;
-let sidebar = document.getElementById("js-sidebar");
+let sidebarWrapper = document.getElementById("js-sidebar-wrapper");
 
 let boundariesCalculator = (canvas: HTMLCanvasElement) => ({
     min: new Coordinates(0, 0),
@@ -64,7 +70,11 @@ shooter.areaHeight = () => {
 };
 let converter = new ConverterCreator(canvas);
 
+let score: number | null = null;
+
 const init = () => {
+    pause = false;
+    score = null;
     baseTimer = new Date().getTime();
     shooter.init();
     ballCreator.init();
@@ -76,9 +86,28 @@ const init = () => {
         superIndicators.push(indicator);
         superIndicatorContainer.appendChild(indicator);
     }
+    const sidebar = sidebarTemplate({scores: scoreStorage.loadScores()});
+    sidebarWrapper.innerHTML = sidebar;
 }
 
 let inputHandler = new InputHandler(() => shooter, init);
+
+const showScorePopup = (okCallback: ((name: string) => void)) => {
+    const input = document.getElementById("js-name") as HTMLInputElement;
+    input.value = nameStorage.loadName();
+    scorePopup.classList.remove("hidden");
+    input.focus();
+    const handler = (e: Event) => {
+        e.preventDefault();
+        const name = input.value || "";
+        nameStorage.saveName(name);
+        okCallback(name);
+        scorePopup.removeEventListener("submit", handler);
+        scorePopup.classList.add("hidden");
+    };
+    scorePopup.addEventListener("submit", handler);
+};
+
 
 let modelUpdates = [
     (tick: number) => ballCreator.handleTimePassage(tick),
@@ -110,8 +139,11 @@ let graphicUpdates = [
         shootIndicator.style.width = width; 
     },
     () => {
-        const seconds = Math.floor((new Date().getTime() - baseTimer) / 1000);
-        timer.innerText = "" + seconds;
+        if (!pause) {
+            const seconds = Math.floor((new Date().getTime() - baseTimer) / 1000);
+            score = seconds;
+            timer.innerText = "" + seconds;
+        }
     }
 ]
 
@@ -120,6 +152,28 @@ updater.graphicUpdates = graphicUpdates;
 updater.modelUpdates = modelUpdates;
 updater.inputHandler = inputHandler;
 
-init();
+shooter.onColliding = () => {
+    pause = true;
+    updater.pause();
+    inputHandler.pause();
+    showScorePopup(name => {
+        if (score !== null) {
+            scoreStorage.addScore({
+                name,
+                timestamp: Date.now(),
+                value: score
+            });
+        }
+        init();
+        inputHandler.restore();
+        updater.restore();
+    });
+};
 
-updater.update();
+startPopup.addEventListener("submit", (event) => {
+    event.preventDefault();
+    startPopup.classList.add("hidden");
+    init();
+    updater.update();
+});
+

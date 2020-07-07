@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha -r ts-node/register -O '{\"lib\": [ \"es2015\" ]}' src/**/*.spec.ts",
     "build": "webpack",
-    "serve": "webpack-dev-server"
+    "serve": "webpack-dev-server",
+    "deploy": "npm run build && push-dir --dir=dist --branch=gh-pages --cleanup"
   },
   "author": "gcali",
   "license": "MIT",

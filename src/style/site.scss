@@ -13,6 +13,8 @@ html, body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    color: white;
+    background-color: #0f2323;
 }
 
 body {
@@ -26,6 +28,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    position: relative;
     .pane {
         &:not(:last-child) {
             margin-right: 2em;
@@ -43,11 +46,13 @@ body {
     margin-top: 10px;
     margin-left: 10px;
     color: white;
+    & > *:not(:last-child) {
+        margin-bottom: 10px;
+    }
     .shoot-delay-indicator {
         background-color: white;
         height: 10px;
         width: 0px;
-        margin-bottom: 10px;
     }
     .super-indicator {
         margin-right: 10px;
@@ -82,8 +87,13 @@ body {
 }
 
 .sidebar {
+    display: flex;
+    flex-direction: column;
+    color: white;
     height: 100%;
     background-color: $background-color;
+    padding: 1em 2em;
+    box-sizing: border-box;
     .life-container {
         list-style: none;
         margin: 0;
@@ -101,3 +111,50 @@ body {
     }
 
 }
+
+.popup {
+    background-color: $background-color;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid white;
+    padding: 3em 5em;
+    input {
+        margin-bottom: 1em;
+        background: none;
+        border: none;
+        border-bottom: 1px white;
+        &:not(:focus) {
+            border-bottom-style: dashed;
+        }
+        color: white;
+        text-align: center;
+    }
+    button {
+        border: 1px solid white;
+        background: none;
+        color: white;
+        align-self: center;
+        padding: 0.5em 2em;
+    }
+}
+
+.start {
+    padding-top: 0.5em;
+}
+
+.scores {
+    padding-inline-start: 0;
+}
+
+.title {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+

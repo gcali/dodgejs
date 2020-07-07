@@ -1,13 +1,18 @@
 <div class="page">
     <div class="pane">
         <div class="indicators">
-            <div id="js-shoot-delay" class="shoot-delay-indicator"></div>
             <div class="super-indicators" id="js-super-indicators"></div>
+            <div id="js-shoot-delay" class="shoot-delay-indicator"></div>
         </div>
         <div class="timer" id="js-timer"></div>
             {{> main-scene this.mainScene}}
+        {{> score-popup}}
+        <form class="popup start" id="js-start-popup">
+            <h1 class="title">DodgeJS</h1>
+            <button type="submit">Start</button>
+        </form>
     </div>
-    <div class="pane">
+    <div class="pane" id="js-sidebar-wrapper">
         {{> sidebar this.sidebar}}
     </div>
 </div>

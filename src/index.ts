@@ -37,6 +37,7 @@ const shootIndicator = document.getElementById("js-shoot-delay");
 const superIndicatorContainer = document.getElementById("js-super-indicators");
 const scorePopup = document.getElementById("js-score-popup");
 const startPopup = document.getElementById("js-start-popup");
+const pausePopup = document.getElementById("js-pause-popup");
 
 const superIndicators: HTMLDivElement[] = [];
 
@@ -72,6 +73,24 @@ let converter = new ConverterCreator(canvas);
 
 let score: number | null = null;
 
+const setupClearButton = () => {
+    const clearButton = document.getElementById("js-score-clear");
+    if (clearButton) {
+        clearButton.onclick = () => {
+            scoreStorage.clearScores();
+            refreshSidebar();
+        }
+    }
+};
+
+setupClearButton();
+
+const refreshSidebar = () => {
+    const sidebar = sidebarTemplate({scores: scoreStorage.loadScores()});
+    sidebarWrapper.innerHTML = sidebar;
+    setupClearButton();
+}
+
 const init = () => {
     pause = false;
     score = null;
@@ -86,11 +105,27 @@ const init = () => {
         superIndicators.push(indicator);
         superIndicatorContainer.appendChild(indicator);
     }
-    const sidebar = sidebarTemplate({scores: scoreStorage.loadScores()});
-    sidebarWrapper.innerHTML = sidebar;
+    refreshSidebar();
 }
 
-let inputHandler = new InputHandler(() => shooter, init);
+let pauseTimer: number | null = null;
+
+let inputHandler = new InputHandler(
+    () => shooter, 
+    init,
+    (show: boolean) => {
+        if (show) {
+            pauseTimer = new Date().getTime();
+            pausePopup.classList.remove("hidden");
+        } else {
+            pausePopup.classList.add("hidden");
+            if (pauseTimer !== null && baseTimer !== null) {
+                baseTimer = new Date().getTime() - (pauseTimer - baseTimer);
+                pauseTimer = null;
+            }
+        }
+    }
+);
 
 const showScorePopup = (okCallback: ((name: string) => void)) => {
     const input = document.getElementById("js-name") as HTMLInputElement;
@@ -169,6 +204,12 @@ shooter.onColliding = () => {
         updater.restore();
     });
 };
+
+
+const startButton = document.getElementById("js-start-button");
+if (startButton) {
+    startButton.focus();
+}
 
 startPopup.addEventListener("submit", (event) => {
     event.preventDefault();

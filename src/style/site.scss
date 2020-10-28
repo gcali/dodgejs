@@ -133,13 +133,14 @@ body {
         color: white;
         text-align: center;
     }
-    button {
-        border: 1px solid white;
-        background: none;
-        color: white;
-        align-self: center;
-        padding: 0.5em 2em;
-    }
+}
+
+button {
+    border: 1px solid white;
+    background: none;
+    color: white;
+    align-self: center;
+    padding: 0.5em 2em;
 }
 
 .start {
@@ -150,6 +151,28 @@ body {
     padding-inline-start: 0;
 }
 
+.grower {
+    flex-grow: 1;
+}
+
+.sidebar {
+    .help {
+        align-self: flex-start;
+        list-style-type: none;
+        padding-inline-start: 0;
+        li {
+            display: flex;
+            .key {
+                flex-grow: 1;
+                font-weight: bold;
+            }
+            .description {
+                margin-left: 1em;
+            }
+        }
+    }
+}
+
 .title {
     text-align: center;
 }
@@ -158,3 +181,6 @@ body {
     display: none;
 }
 
+.bold {
+    font-weight: bold;
+}

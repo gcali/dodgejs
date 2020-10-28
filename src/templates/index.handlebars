@@ -9,8 +9,12 @@
         {{> score-popup}}
         <form class="popup start" id="js-start-popup">
             <h1 class="title">DodgeJS</h1>
-            <button type="submit">Start</button>
+            <button type="submit" id="js-start-button">Start</button>
         </form>
+        <div class="popup pause hidden" id="js-pause-popup">
+            <h1 class="title">Pause</h1>
+            <label>Press <span class="bold">p</span> to resume</label>
+        </div>
     </div>
     <div class="pane" id="js-sidebar-wrapper">
         {{> sidebar this.sidebar}}

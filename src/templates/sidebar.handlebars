@@ -10,4 +10,30 @@
         <li>{{this.value}} - {{this.name}}</li>
         {{/each}}
     </ol>
+    {{#if scores}}
+    <button id="js-score-clear">Clear</button>
+    {{/if}}
+    <div class="grower"></div>
+    <ul class="help">
+        <li>
+            <span class="key">↑</span>
+            <span class="description">Spear</span>
+        </li>
+        <li>
+            <span class="key">→←</span>
+            <span class="description">Move</span>
+        </li>
+        <li>
+            <span class="key">↓</span>
+            <span class="description">Power-up</span>
+        </li>
+        <li>
+            <span class="key">n</span>
+            <span class="description">New game</span>
+        </li>
+        <li>
+            <span class="key">p</span>
+            <span class="description">Pause</span>
+        </li>
+    </ul>
 </div>

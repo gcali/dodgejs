@@ -25,6 +25,9 @@ const loadScores =  (): Score[] => {
 }
 
 export const scoreStorage = {
+    clearScores(): void {
+        localStorage.removeItem(scoreKey);
+    },
     loadScores,
     addScore(score: Score): Score[] {
         const scores = loadScores();

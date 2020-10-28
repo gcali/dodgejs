@@ -26,7 +26,11 @@ export default class InputHandler {
     private isRightDown: boolean = false;
     private isDownDown: boolean = false;
     private isUpDown: boolean = false;
-    constructor(private shooterExtractor: () => Shooter, private init: () => void) {
+    constructor(
+        private shooterExtractor: () => Shooter,
+        private init: () => void,
+        private pauseShow: (show: boolean) => void
+    ) {
         let translator: { [key: number]: string } = {
             80: "p",
             83: "s",
@@ -83,6 +87,7 @@ export default class InputHandler {
 
         if (this.keysDown.has("p")) {
             this.isPaused = !this.isPaused;
+            this.pauseShow(this.isPaused);
         }
 
         if (this.keysDown.has("s")) {

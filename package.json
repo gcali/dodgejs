@@ -38,7 +38,7 @@
     "webpack-merge": "^5.0.8"
   },
   "dependencies": {
-    "handlebars": "^4.7.6",
+    "handlebars": "^4.7.7",
     "typeface-vt323": "0.0.72"
   }
 }

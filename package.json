@@ -23,7 +23,7 @@
     "local-web-server": "^2.6.1",
     "mocha": "^8.0.1",
     "mocha-webpack": "^1.1.0",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "push-dir": "^0.4.1",
     "rimraf": "^3.0.2",
     "sass-loader": "^9.0.0",

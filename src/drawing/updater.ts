@@ -30,7 +30,7 @@ export class Updater {
     public pause() {
         if (this.timeoutHandlers !== null) {
             window.clearTimeout(this.timeoutHandlers.id);
-            this.timeoutHandlers.callback();
+            // this.timeoutHandlers.callback();
         }
         this.pauseUpdates = true;
     }
